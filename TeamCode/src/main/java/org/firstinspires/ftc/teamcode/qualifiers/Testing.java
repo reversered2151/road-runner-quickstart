@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 
 @TeleOp(name = "Flywheel Cali", group = "qualifiers")
-public class flywheelcali extends LinearOpMode {
+public class Testing extends LinearOpMode {
 
     qualifiersHardwareMap hardware = new qualifiersHardwareMap();
 
@@ -39,39 +39,25 @@ public class flywheelcali extends LinearOpMode {
         while (opModeIsActive()) {
             final boolean lb = gamepad1.left_bumper;
             final boolean rb = gamepad1.right_bumper;
-            final boolean dpad_up = gamepad1.dpad_up;
 
-            if (dpad_up) {
-                flywheel.setPower(.7);
-                startup = true;
-            }
 
             if (lb && !lb_prev) {
-                if (startup){
-                    flywheel.setPower(0);
-                    startup = false;
-                }
                 targetRpm += 100;
             }
 
             if (rb && !rb_prev) {
-                if (startup){
-                    flywheel.setPower(0);
-                    startup = false;
-                }
                 targetRpm = 500;
             }
 
             if (gamepad1.y){
-                intake.setPower(100);
-                uptake.setPower(100);
+                intake.setPower(.7);
+                uptake.setPower(.7);
             } else if (gamepad1.a) {
                 intake.setPower(0);
                 uptake.setPower(0);
             }
 
 
-            if (!startup) {flywheel.setVelocity(targetRpm);}
             telemetry.addLine("Controls: LB = increase speed, RB = reset speed");
             telemetry.addLine("Target RPM:"+ targetRpm);
             telemetry.update();
