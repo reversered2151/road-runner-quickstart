@@ -1,54 +1,28 @@
-
 package org.firstinspires.ftc.teamcode.qualifiers;
 
-
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-
-@TeleOp(name = "Testing", group = "qualifiers")
-public class Testing extends LinearOpMode {
-
-    qualifiersHardwareMap hardware = new qualifiersHardwareMap();
-
-
-    private double targetRpm = 0.0;
-
-    boolean startup = false;
-    boolean lb_prev = false;
-    boolean rb_prev = false;
-
-
-    DcMotorEx flywheel;
-    DcMotorEx intake;
-    DcMotorEx uptake;
-    DcMotorEx fl;
-    DcMotorEx fr;
-    DcMotorEx bl;
-    DcMotorEx br;
-
-
+@TeleOp
+public class FieldCentricMecanumTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        //init stuff
-        hardware.init(hardwareMap);
-
-        flywheel = hardware.flywheel;
-        intake = hardware.intake;
-        uptake = hardware.uptake;
-        fl = hardware.fl;
-        fr = hardware.fr;
-        bl = hardware.bl;
-        br = hardware.br;
+        // Declare our motors
+        // Make sure your ID's match your configuration
+        DcMotor fl = hardwareMap.dcMotor.get("frontLeft");
+        DcMotor bl = hardwareMap.dcMotor.get("backLeft");
+        DcMotor fr = hardwareMap.dcMotor.get("frontRight");
+        DcMotor br = hardwareMap.dcMotor.get("backRight");
 
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
         // reverse the left side instead.
+        fr.setDirection(DcMotorSimple.Direction.REVERSE);
         br.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Retrieve the IMU from the hardware map
@@ -57,65 +31,36 @@ public class Testing extends LinearOpMode {
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
+        // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
 
         waitForStart();
+
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            final boolean lb = gamepad1.left_bumper;
-            final boolean rb = gamepad1.right_bumper;
-
-
-            if (lb && !lb_prev) {
-                targetRpm += 500;
-                //targetRpm += 100;
-            }
-
-            if (rb && !rb_prev) {
-                targetRpm = 500;
-            }
-
-            if (gamepad1.y) {
-                intake.setPower(.7);
-                uptake.setPower(.7);
-            } else if (gamepad1.a) {
-                intake.setPower(0);
-                uptake.setPower(0);
-            }
-
-            flywheel.setVelocity(targetRpm);
-            telemetry.addLine("Controls: LB = increase speed, RB = reset speed");
-            telemetry.addLine("Target RPM:" + targetRpm);
-            telemetry.update();
-
-            // Update previous button states
-            lb_prev = lb;
-            rb_prev = rb;
-
-
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
 
-                // This button choice was made so that it is hard to hit on accident,
-                // it can be freely changed based on preference.
-                // The equivalent button is start on Xbox-style controllers.
+            // This button choice was made so that it is hard to hit on accident,
+            // it can be freely changed based on preference.
+            // The equivalent button is start on Xbox-style controllers.
             if (gamepad1.right_stick_button && gamepad1.left_stick_button) {
                 imu.resetYaw();
             }
 
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
-                // Rotate the movement direction counter to the bot's rotation
+            // Rotate the movement direction counter to the bot's rotation
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
             double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
 
             rotX = rotX * 1.1;  // Counteract imperfect strafing
 
-                // Denominator is the largest motor power (absolute value) or 1
-                // This ensures all the powers maintain the same ratio,
-                // but only if at least one is out of the range [-1, 1]
+            // Denominator is the largest motor power (absolute value) or 1
+            // This ensures all the powers maintain the same ratio,
+            // but only if at least one is out of the range [-1, 1]
             double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
             double flPower = (rotY + rotX + rx) / denominator;
             double blPower = (rotY - rotX + rx) / denominator;
@@ -126,7 +71,6 @@ public class Testing extends LinearOpMode {
             bl.setPower(blPower);
             fr.setPower(frPower);
             br.setPower(brPower);
-
         }
     }
 }
