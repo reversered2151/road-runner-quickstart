@@ -87,6 +87,7 @@ public class Testing extends LinearOpMode {
             flywheel.setVelocity(targetRpm);
             telemetry.addLine("Controls: LB = increase speed, RB = reset speed");
             telemetry.addLine("Target RPM:" + targetRpm);
+            telemetry.addLine("Actual RPM:" + flywheel.getVelocity());
             telemetry.update();
 
             // Update previous button states
@@ -96,7 +97,7 @@ public class Testing extends LinearOpMode {
 
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x;
-            double rx = gamepad1.right_stick_x;
+            double rx = (gamepad1.right_stick_x)*.75;
 
                 // This button choice was made so that it is hard to hit on accident,
                 // it can be freely changed based on preference.
