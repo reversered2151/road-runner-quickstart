@@ -5,12 +5,15 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class qualifiersHardwareMap {
     public DcMotorEx bl, br, fl, fr, flywheel, intake, uptake;
 
     //    public NormalizedColorSensor colorSensor;
     public IMU imu;
+
+    public Servo blocker;
 
 //    HuskyLens huskyLens;
 
@@ -39,10 +42,9 @@ public class qualifiersHardwareMap {
         flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        //TODO FIGURE OUT WHICH NEEDS TO BE REVERSE OR FORWARD
-//         fl.setDirection(DcMotorSimple.Direction.REVERSE);
-//         bl.setDirection(DcMotorSimple.Direction.REVERSE);
-//         fr.setDirection(DcMotorSimple.Direction.FORWARD);
-//         br.setDirection(DcMotorSimple.Direction.FORWARD);
+        blocker = hardwareMap.get(Servo.class, "blocker");
+
+        // Reverse necessary motors
+        br.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 }

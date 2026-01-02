@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 
@@ -18,6 +20,7 @@ public class Testing extends LinearOpMode {
 
 
     private double targetRpm = 0.0;
+    private double blockerpos = .95;
 
     boolean startup = false;
     boolean lb_prev = false;
@@ -32,6 +35,8 @@ public class Testing extends LinearOpMode {
     DcMotorEx bl;
     DcMotorEx br;
 
+    Servo blocker;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -41,15 +46,11 @@ public class Testing extends LinearOpMode {
         flywheel = hardware.flywheel;
         intake = hardware.intake;
         uptake = hardware.uptake;
+        blocker = hardware.blocker;
         fl = hardware.fl;
         fr = hardware.fr;
         bl = hardware.bl;
         br = hardware.br;
-
-        // Reverse the right side motors. This may be wrong for your setup.
-        // If your robot moves backwards when commanded to go forwards,
-        // reverse the left side instead.
-        br.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Retrieve the IMU from the hardware map
         IMU imu = hardwareMap.get(IMU.class, "imu");
@@ -84,7 +85,16 @@ public class Testing extends LinearOpMode {
                 uptake.setPower(0);
             }
 
+
+            if (gamepad1.dpad_up) {
+                blockerpos = .95;
+            }
+            if (gamepad1.dpad_down) {
+                blockerpos = .6;
+            }
+
             flywheel.setVelocity(targetRpm);
+            blocker.setPosition(blockerpos);
             telemetry.addLine("Controls: LB = increase speed, RB = reset speed");
             telemetry.addLine("Target RPM:" + targetRpm);
             telemetry.addLine("Actual RPM:" + flywheel.getVelocity());
